@@ -1,0 +1,12 @@
+
+sourceCompatibility = 1.8
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    // 引入其他模块
+    compile project(":model")
+    testCompile group: 'junit', name: 'junit', version: '4.12'
+}

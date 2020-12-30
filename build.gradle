@@ -1,0 +1,115 @@
+/**
+ * 每个构建脚本，都会自带一个project实例
+ */
+plugins {
+    id 'java'
+}
+
+allprojects {
+    apply plugin: 'java'
+    sourceCompatibility = 1.8
+
+    apply plugin: 'maven-publish'
+
+    // gradle -> Tasks -> publishing
+    // toMavenLocal 发布到本地仓库
+    // publishToMavenLocal 把所有项目都发布到本地仓库中
+    // toMyRepoRepository 发布到自己的仓库中
+    // publish 把所有项目都发布到自己的仓库中
+    publishing {
+        publications {
+            // 自定义方法 把什么发布出去
+            myPublish(MavenPublication) {
+                from components.java
+            }
+        }
+        repositories {
+            maven {
+                name "myRepo"
+                url "自己的仓库地址"
+            }
+        }
+    }
+}
+
+repositories {
+    mavenLocal()
+    maven { url "http://maven.aliyun.com/nexus/content/groups/public/"}
+    mavenCentral()
+    jcenter()
+    maven { url "https://repo.spring.io/snapshot" }
+    maven { url "https://repo.spring.io/milestone" }
+    maven { url "私服地址" }
+}
+/**
+ * 修改版本冲突策略，版本冲突时报错
+ */
+configurations.all {
+    resolutionStrategy {
+        failOnVersionConflict()
+        // 强制指定版本
+        force 'org.slf4j:slf4j-api:1.7.2'
+    }
+}
+
+
+dependencies {
+    testCompile group: 'junit', name: 'junit', version: '4.11'
+    compile 'org.slf4j:slf4j-api:1.7.2'
+    compile ('org.hibernate:hibernate-core:3.6.3.Final') {
+        // 排除传递性依赖
+//        exclude group:'org.slf4j', module: 'slf4j-api'
+    }
+}
+
+def getAllProjects() {
+    println '-------------------------------------'
+    println this.rootProject.name
+    println '-------------------------------------'
+
+    def projectSet = this.getAllprojects()
+    projectSet.eachWithIndex{
+        project, i ->
+            println i + "---- '$project.name'"
+    }
+}
+this.getAllProjects()
+
+// 在rootProject的配置中集中处理subProject
+project('subProject1') { Project project ->
+    //doSomething for subProject1 project
+    //工程强制使用某个版本的依赖来解决依赖冲突中出现的依赖
+    project.configurations.all {
+        resolutionStrategy {
+            //force 'com.android.support:support-annotations:26.1.0'
+        }
+    }
+
+    //添加依赖
+    dependencies {
+
+    }
+}
+
+def createDir = {
+    path ->
+        File dir = new File(path);
+        if(!dir.exists()) {
+            dir.mkdirs();
+        }
+}
+task makeJavaDir() {
+    def paths = ['src/main/java', 'src/main/resources', 'src/test/java', 'src/test/resources']
+    doFirst {
+        paths.forEach(createDir);
+    }
+}
+
+task makeWebDir() {
+    dependsOn makeJavaDir
+    def paths = ['src/main/webapp', 'src/test/webapp'];
+    doLast {
+        paths.forEach(createDir);
+    }
+}
+

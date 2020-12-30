@@ -1,0 +1,4 @@
+top/study/gradledemo/App.java
+ top.study.gradledemo.App
+top/study/gradledemo/TodoItem.java
+ top.study.gradledemo.TodoItem

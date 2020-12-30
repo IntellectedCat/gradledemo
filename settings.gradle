@@ -1,0 +1,5 @@
+rootProject.name = 'gradledemo'
+include 'subProject1'
+include 'model'
+include 'repository'
+
